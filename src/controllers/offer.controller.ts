@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createOffer, getallOffers, getOfferById, updateOfferById, deleteOfferById, getOfferBySearch } from '../services/offer.service'
+import { createOffer, getallOffers, getOfferById, updateOfferById, deleteOfferById, getOfferBySearch, activateOfferById, deactivateOfferById } from '../services/offer.service'
 
 export const createOfferController = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -127,17 +127,41 @@ export const getOfferBySearchController = async (req: Request, res: Response): P
 export const activateOfferByIdController = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
+
         if (!id || Array.isArray(id)) {
             res.status(400).json({ message: "Invalid offer ID" });
             return;
         }
-        const updateOffer = await updateOfferById(id, req.body);
+
+        const activateOffer = await activateOfferById(id);
+
         res.status(200).json({
             message: "Offer activated successfully",
-            data: updateOffer
-        })
+            data: activateOffer
+        });
+
+    } catch (error: any) {
+        if (error.message === "Offer not found") {
+            res.status(404).json({ message: error.message });
+            return;
+        }
+        res.status(500).json({ error: error.message });
     }
-    catch (error: any) {
+};
+
+export const deactivateOfferByIdController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        if (!id || Array.isArray(id)) {
+            res.status(400).json({ message: 'Invalid offer ID' });
+            return;
+        }
+        const deactivateOffer = await deactivateOfferById(id);
+        res.status(200).json({
+            message: "Offer deactivated successfully",
+            data: deactivateOffer
+        })
+    } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
 }
