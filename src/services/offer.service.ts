@@ -254,3 +254,57 @@ export const getOfferBySearch = async (params: SearchEnquiryParams) => {
         connection.release();
     }
 }
+
+export const activateOfferById = async (id: string) => {
+    const connection = await conn.getConnection();
+
+    try {
+        const query = `UPDATE offers SET status = ? WHERE id = ?`;
+        const [result]: any = await connection.execute(query, ["active", id]);
+
+        if (result.affectedRows === 0) {
+            throw new Error("Offer not found");
+        }
+
+        const [rows]: any = await connection.execute(
+            "SELECT offer_name, status FROM offers WHERE id = ?",
+            [id]
+        );
+
+        return rows[0];
+
+    } catch (err: any) {
+        console.error("DB ERROR:", err);
+        throw err;
+
+    } finally {
+        connection.release();
+    }
+};
+
+export const deactivateOfferById = async (id: string) => {
+    const connection = await conn.getConnection();
+
+    try {
+        const query = `UPDATE offers SET status = ? WHERE id = ?`;
+        const [result]: any = await connection.execute(query, ["inactive", id]);
+
+        if (result.affectedRows === 0) {
+            throw new Error("Offer not found");
+        }
+
+        const [rows]: any = await connection.execute(
+            "SELECT offer_name, status FROM offers WHERE id = ?",
+            [id]
+        );
+
+        return rows[0];
+
+    } catch (err: any) {
+        console.error("DB ERROR:", err);
+        throw err;
+
+    } finally {
+        connection.release();
+    }
+}
